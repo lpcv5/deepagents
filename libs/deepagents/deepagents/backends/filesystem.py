@@ -164,8 +164,8 @@ class FilesystemBackend(BackendProtocol):
 
         # Convert cwd to string for comparison
         cwd_str = str(self.cwd)
-        if not cwd_str.endswith("/"):
-            cwd_str += "/"
+        if not cwd_str.endswith(os.sep):
+            cwd_str += os.sep
 
         # List only direct children (non-recursive)
         try:
@@ -198,21 +198,21 @@ class FilesystemBackend(BackendProtocol):
                             st = child_path.stat()
                             results.append(
                                 {
-                                    "path": abs_path + "/",
+                                    "path": abs_path + os.sep,
                                     "is_dir": True,
                                     "size": 0,
                                     "modified_at": datetime.fromtimestamp(st.st_mtime).isoformat(),
                                 }
                             )
                         except OSError:
-                            results.append({"path": abs_path + "/", "is_dir": True})
+                            results.append({"path": abs_path + os.sep, "is_dir": True})
                 else:
                     # Virtual mode: strip cwd prefix
                     if abs_path.startswith(cwd_str):
                         relative_path = abs_path[len(cwd_str) :]
                     elif abs_path.startswith(str(self.cwd)):
-                        # Handle case where cwd doesn't end with /
-                        relative_path = abs_path[len(str(self.cwd)) :].lstrip("/")
+                        # Handle case where cwd doesn't end with separator
+                        relative_path = abs_path[len(str(self.cwd)) :].lstrip(os.sep)
                     else:
                         # Path is outside cwd, return as-is or skip
                         relative_path = abs_path
@@ -578,12 +578,12 @@ class FilesystemBackend(BackendProtocol):
                         results.append({"path": abs_path, "is_dir": False})
                 else:
                     cwd_str = str(self.cwd)
-                    if not cwd_str.endswith("/"):
-                        cwd_str += "/"
+                    if not cwd_str.endswith(os.sep):
+                        cwd_str += os.sep
                     if abs_path.startswith(cwd_str):
                         relative_path = abs_path[len(cwd_str) :]
                     elif abs_path.startswith(str(self.cwd)):
-                        relative_path = abs_path[len(str(self.cwd)) :].lstrip("/")
+                        relative_path = abs_path[len(str(self.cwd)) :].lstrip(os.sep)
                     else:
                         relative_path = abs_path
                     virt = "/" + relative_path
